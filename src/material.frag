@@ -12,6 +12,7 @@ const int KADO = 8;
 const int MAT = 9;
 const int NOISE = 10;
 const int SNOISE = 11;
+const int CUSTOM = 12;
 const int LESSSTEP = 97;
 const int DEBUG = 98;
 const int ERROR = 99;
@@ -19,7 +20,7 @@ const int ERROR = 99;
 //マテリアルの設定
 int materialOf(int objectID){
   if (objectID == 0){
-    return SNOISE;
+    return CUSTOM;
   }else if (objectID == 1){
     return GRID;
   }else if (objectID == 2){
@@ -74,6 +75,27 @@ vec3 snoiseCol(vec3 rPos){
   return vec3(n);
 }
 
+vec3 customCol(vec3 rPos){
+  vec3 color;
+  vec3 nor = normal(rPos); // terrain normals
+  if(rPos.z < -1.0 && rPos.z > -1.9){
+    // base rock colors
+		color = mix( vec3(0.8), vec3(.95, 0.9, 0.85), smoothstep(0.7, 1.0, nor.z) );
+		
+		// layer noise (to produdce lighter color bands of rock)
+		float n = 0.5*(noise(rPos.xz*vec2(2.0, 40.0))+1.0);
+		// rock layers should show most where nomals are NOT straight up
+		color = mix( n*vec3(0.5, 0.4, 0.4), color, nor.z ); 
+		
+		// grass & moss grows thickest where normals are straight up
+		color = mix( color, vec3(0.85, 0.94, 0.88), smoothstep(0.7, 1.0, nor.z) );
+  }
+  if (rPos.z < -1.9) {
+		color = mix( vec3(0.15, 0.05, 0.0), vec3(0.05, 0.1, 0.0), smoothstep(0.0, 0.7, nor.z) );
+	}
+  return color;
+}
+
 vec3 color(rayobj ray){
   if (ray.material == GRID){
     return gridCol(ray.rPos);
@@ -99,12 +121,14 @@ vec3 color(rayobj ray){
     return noiseCol(ray.rPos);
   }else if (ray.material == SNOISE){
     return snoiseCol(ray.rPos);
+  }else if (ray.material == CUSTOM){
+    return customCol(ray.rPos);
   }else if (ray.material == SAIHATE || ray.material == LESSSTEP){
-    float k = max(0.0,dot(normalize(ray.direction),vec3(0,0,1)));
-    vec3 c1 = vec3(1.0);
-    vec3 c2 = vec3(0.584, 0.752, 0.925);
-    return mix(c1,c2,smoothstep(0.0,0.5,k));
-    //return vec3(160.0,216.0,239.0)/256.0;
+    // float k = max(0.0,dot(normalize(ray.direction),vec3(0,0,1)));
+    // vec3 c1 = vec3(1.0);
+    // vec3 c2 = vec3(0.584, 0.752, 0.925);
+    // return mix(c1,c2,smoothstep(0.0,0.5,k));
+    return vec3(160.0,216.0,239.0)/256.0;
   }else{
     return vec3(1.0,0.0,0.0);
   }

@@ -59,34 +59,24 @@ struct dfstruct{
 `
 let fs_main1 =`
 float floor1(vec3 z){
-  return plane(z,vec3(0,0,1),-1.95);
+  return plane(z,vec3(0,0,1),-1.9);
 }
 
-const float space = 1.3;
-float gear1(vec3 z){
-  z = z- vec3(0,space,0);
-  z = turn(z,vec3(0,1,0),PI/2.0);
-  z = turn(z,vec3(0,0,1),PI/20.0+time);
-  return gear(z, 1.0, 1.4, 0.1, 20, 0.06);
-}
-float gear2(vec3 z){
-  z = z- vec3(0,-space,0);
-  z = turn(z,vec3(0,1,0),PI/2.0);
-  z = turn(z,vec3(0,0,1),-time);
-  return gear(z, 1.0, 1.4, 0.1, 20, 0.06);
+float noisePlane(vec3 z){
+  return max(plane(z,vec3(0,0,1),-2.3) - noise(z.xy*100.0)*1.5, 0.0);
+  // float h = noise(z.xy*100.0)*1.5;
+  // h += smoothstep(-0.3, 1.5, h); 
+	// h *= smoothstep(-1.5, -0.3, h);
+  // return max(plane(z,vec3(0,0,1),-2.3) - h, 0.0);
 }
 
 dfstruct distanceFunction(vec3 z){
-  z = z +vec3(-2,0,0);
+  dfstruct mountain = dfstruct(noisePlane(z),0);
   dfstruct plane = dfstruct(floor1(z),1);
-  dfstruct gear1 = dfstruct(gear1(z),0);
-  dfstruct gear2 = dfstruct(gear2(z),0);
-
-  dfstruct df;
-  df = dfmin(plane,gear1);
-  df = dfmin(df,gear2);
-  return df;
+  dfstruct df = dfmin(mountain,plane);
+  return mountain;
 }
+
 dfstruct depthFunction(vec3 z){
   z=z +vec3(-2,0,0);
   dfstruct plane = dfstruct(floor1(z),1);

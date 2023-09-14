@@ -54,7 +54,7 @@ void trick(inout rayobj ray,in float overstep){
 void ambientFunc(inout rayobj ray){//アンビエント
   vec3 baseColor = color(ray);
   vec3 ambColor = vec3(1.0);
-  float ambIntensity =  0.6;
+  float ambIntensity =  0.9;
   ray.fragColor += ambIntensity * Hadamard(baseColor,ambColor);
   ray.fragColor = clamp(ray.fragColor,0.0,1.0);
 }

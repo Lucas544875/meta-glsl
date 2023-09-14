@@ -73,9 +73,6 @@ vec3 mix3 (vec3 v1, vec3 v2, vec3 v3, float k){
 }
 
 //noise
-const int   oct  = 8;
-const float per  = 0.5;
-
 // 補間関数
 float interpolate(float a, float b, float x){
   float f = (1.0 - cos(x * PI)) * 0.5;
@@ -99,6 +96,8 @@ float irnd(vec2 p){
 }
 
 // ノイズ生成
+const int   oct  = 8;
+const float per  = 0.5;
 float noise(vec2 p){
   float t = 0.0;
   for(int i = 0; i < oct; i++){

@@ -10,6 +10,8 @@ const int NORMAL = 6;
 const int METAL = 7;
 const int KADO = 8;
 const int MAT = 9;
+const int NOISE = 10;
+const int SNOISE = 11;
 const int LESSSTEP = 97;
 const int DEBUG = 98;
 const int ERROR = 99;
@@ -17,7 +19,7 @@ const int ERROR = 99;
 //マテリアルの設定
 int materialOf(int objectID){
   if (objectID == 0){
-    return METAL;
+    return SNOISE;
   }else if (objectID == 1){
     return GRID;
   }else if (objectID == 2){
@@ -60,6 +62,18 @@ vec3 normalCol(vec3 rPos){
   return abs(normal(rPos));
 }
 
+vec3 noiseCol(vec3 rPos){
+  return vec3(noise(rPos.xy*100.0));
+}
+
+vec3 snoiseCol(vec3 rPos){
+  const float map = 256.0;
+  // seamless noise
+	vec2 t = mod(rPos.xy*100.0, map);
+	float n = snoise(t, t/map, vec2(map), vec2(time*10.0));
+  return vec3(n);
+}
+
 vec3 color(rayobj ray){
   if (ray.material == GRID){
     return gridCol(ray.rPos);
@@ -81,6 +95,10 @@ vec3 color(rayobj ray){
     return kadoCol(ray.rPos);
   }else if (ray.material == MAT){
     return vec3(0.960,0.95,0.92);
+  }else if (ray.material == NOISE){
+    return noiseCol(ray.rPos);
+  }else if (ray.material == SNOISE){
+    return snoiseCol(ray.rPos);
   }else if (ray.material == SAIHATE || ray.material == LESSSTEP){
     float k = max(0.0,dot(normalize(ray.direction),vec3(0,0,1)));
     vec3 c1 = vec3(1.0);

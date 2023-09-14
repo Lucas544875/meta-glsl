@@ -64,10 +64,57 @@ mat3 inverse(mat3 matrix) {
 
   return (1.0 / dot(row0, minors0)) * adj;
 }
+
 vec3 mix3 (vec3 v1, vec3 v2, vec3 v3, float k){
   float c1 = max(1.0-2.0*k,0.0);
   float c2 = 1.0-2.0*abs(k-0.5);
   float c3 = max(2.0*k-1.0,0.0);
   return c1*v1 + c2*v2 + c3*v3;
 }
+
+//noise
+// 補間関数
+float interpolate(float a, float b, float x){
+  float f = (1.0 - cos(x * PI)) * 0.5;
+  return mix(a, b, f);
+}
+
+// 乱数生成
+float rnd(vec2 p){
+  return fract(sin(dot(p ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+// 補間乱数
+float irnd(vec2 p){
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  vec4 v = vec4(rnd(vec2(i.x,       i.y      )),
+                rnd(vec2(i.x + 1.0, i.y      )),
+                rnd(vec2(i.x,       i.y + 1.0)),
+                rnd(vec2(i.x + 1.0, i.y + 1.0)));
+  return interpolate(interpolate(v.x, v.y, f.x), interpolate(v.z, v.w, f.x), f.y);
+}
+
+// ノイズ生成
+const int   oct  = 8;
+const float per  = 0.5;
+float noise(vec2 p){
+  float t = 0.0;
+  for(int i = 0; i < oct; i++){
+    float freq = pow(2.0, float(i));
+    float amp  = pow(per, float(oct - i));
+    t += irnd(vec2(p.x / freq, p.y / freq)) * amp;
+  }
+  return t;
+}
+
+// シームレスノイズ生成
+//p:位置 q:相対位置(vec2(0~1)) r:タイルサイズ seed:初期値
+float snoise(vec2 p, vec2 q, vec2 r, vec2 seed){
+  return  noise(vec2(p.x,       p.y      )+seed) *        q.x  *        q.y  +
+          noise(vec2(p.x,       p.y + r.y)+seed) *        q.x  * (1.0 - q.y) +
+          noise(vec2(p.x + r.x, p.y      )+seed) * (1.0 - q.x) *        q.y  +
+          noise(vec2(p.x + r.x, p.y + r.y)+seed) * (1.0 - q.x) * (1.0 - q.y);
+}
+
 `

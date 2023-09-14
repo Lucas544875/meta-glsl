@@ -12,6 +12,8 @@ const int KADO = 8;
 const int MAT = 9;
 const int NOISE = 10;
 const int SNOISE = 11;
+const int WATER = 12;
+const int CUSTOM = 13;
 const int LESSSTEP = 97;
 const int DEBUG = 98;
 const int ERROR = 99;
@@ -19,11 +21,11 @@ const int ERROR = 99;
 //マテリアルの設定
 int materialOf(int objectID){
   if (objectID == 0){
-    return SNOISE;
+    return CUSTOM;
   }else if (objectID == 1){
     return GRID;
   }else if (objectID == 2){
-    return WHITE;
+    return WATER;
   }else if (objectID == 98){
     return SAIHATE;
   }else if (objectID == 99){
@@ -73,6 +75,13 @@ vec3 snoiseCol(vec3 rPos){
 	float n = snoise(t, t/map, vec2(map), vec2(time*10.0));
   return vec3(n);
 }
+vec3 waterCol(vec3 rPos){
+  return rgb(0,24,40);
+}
+
+vec3 customCol(vec3 rPos){
+  return vec3(0.5);
+}
 
 vec3 color(rayobj ray){
   if (ray.material == GRID){
@@ -98,12 +107,16 @@ vec3 color(rayobj ray){
   }else if (ray.material == NOISE){
     return noiseCol(ray.rPos);
   }else if (ray.material == SNOISE){
-    return snoiseCol(ray.rPos);
+    return noiseCol(ray.rPos);
+  }else if (ray.material == WATER){
+    return waterCol(ray.rPos);
+  }else if (ray.material == CUSTOM){
+    return customCol(ray.rPos);
   }else if (ray.material == SAIHATE || ray.material == LESSSTEP){
     float k = max(0.0,dot(normalize(ray.direction),vec3(0,0,1)));
-    vec3 c1 = vec3(1.0);
-    vec3 c2 = vec3(0.584, 0.752, 0.925);
-    return mix(c1,c2,smoothstep(0.0,0.5,k));
+    vec3 c1 = colorCode(255,234,183);
+    vec3 c2 = colorCode(1,132,210);
+    return mix(c1,c2,smoothstep(-0.1,0.3,k));
     //return vec3(160.0,216.0,239.0)/256.0;
   }else{
     return vec3(1.0,0.0,0.0);
@@ -125,6 +138,8 @@ float refrectance(int material){
     return 0.4;
   }else if (material == METAL){
     return 0.6;
+  }else if (material == WATER){
+    return 0.4;
   }else{
     return 0.0;
   }

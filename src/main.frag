@@ -40,7 +40,7 @@ struct effectConfig{
 };
 
 const effectConfig effect = effectConfig(
-  false, //反射
+  true, //反射
   true,  //アンビエント
   false, //ハイライト(鏡面反射)
   true, //拡散光
@@ -59,32 +59,25 @@ struct dfstruct{
 `
 let fs_main1 =`
 float floor1(vec3 z){
-  return plane(z,vec3(0,0,1),-1.95);
+  return plane(z,vec3(0,0,1),-1.95) - noise(z.xy*10.0)*0.5;
 }
 
-const float space = 1.3;
-float gear1(vec3 z){
-  z = z- vec3(0,space,0);
-  z = turn(z,vec3(0,1,0),PI/2.0);
-  z = turn(z,vec3(0,0,1),PI/20.0+time);
-  return gear(z, 1.0, 1.4, 0.1, 20, 0.06);
-}
-float gear2(vec3 z){
-  z = z- vec3(0,-space,0);
-  z = turn(z,vec3(0,1,0),PI/2.0);
-  z = turn(z,vec3(0,0,1),-time);
-  return gear(z, 1.0, 1.4, 0.1, 20, 0.06);
+float noiseBall(vec3 z){
+  vec3 center = vec3(0,0,0);
+  vec3 p = normalize(z - center);
+  float theta = atan(p.x,p.y);
+  float phi = atan(p.z,length(p.xy));
+  float n = noise(vec2(theta*cos(phi),phi)*300.0)*(theta/PI2+0.5)+noise(vec2((theta+PI2)*cos(phi),phi)*300.0)*(0.5-theta/PI2);
+  
+  return sphere(z, center, 1.5)-n*0.8;
 }
 
 dfstruct distanceFunction(vec3 z){
-  z = z +vec3(-2,0,0);
-  dfstruct plane = dfstruct(floor1(z),1);
-  dfstruct gear1 = dfstruct(gear1(z),0);
-  dfstruct gear2 = dfstruct(gear2(z),0);
+  dfstruct water = dfstruct(floor1(z),2);
+  dfstruct noiseBall = dfstruct(noiseBall(z),0);
 
   dfstruct df;
-  df = dfmin(plane,gear1);
-  df = dfmin(df,gear2);
+  df = dfmin(water,noiseBall);
   return df;
 }
 dfstruct depthFunction(vec3 z){

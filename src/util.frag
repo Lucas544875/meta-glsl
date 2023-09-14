@@ -4,6 +4,14 @@ vec3 hsv(float h, float s, float v) {
   return ((clamp(abs(fract(mod(h,2.0*PI)+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*s+1.)*v;
 }
 
+vec3 colorCode(int r, int g, int b){
+  return vec3(float(r)/255.0,float(g)/255.0,float(b)/255.0);
+}
+
+vec3 rgb(int r, int g, int b){
+  return colorCode(r,g,b);
+}
+
 float manhattan (vec3 p,vec3 q){
   return abs(p.x-q.x)+abs(p.y-q.y)+abs(p.z-q.z);
 }

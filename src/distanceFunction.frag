@@ -304,7 +304,6 @@ float cylinder(vec3 p, vec2 h) {
 #define TREE2_OFFSET            0.4
 #define TREE2_SCALE             0.9
 
-
 #define NEEDLE_LENGTH           0.5
 #define NEEDLE_SPACING          0.15
 #define NEEDLE_THICKNESS        0.05
@@ -317,19 +316,6 @@ float cylinder(vec3 p, vec2 h) {
 #define BRANCH_SPACING          1.2
 #define BRANCH_NUM_MAX          9.0
 #define BRANCH_NUM_FADE         2.0
-
-#define BAUBLE_SIZE             0.5
-#define BAUBLE_SPACING          1.9
-#define BAUBLE_COUNT_FADE1      1.2
-#define BAUBLE_COUNT_FADE2      0.3
-#define BAUBLE_JITTER           0.05
-#define BAUBLE_SPREAD           0.6
-#define BAUBLE_MTL_SEED         131.0
-#define BAUBLE_YIQ_MUL          vec3(0.8, 1.1, 0.6)
-#define BAUBLE_CLR_Y            0.7
-#define BAUBLE_CLR_I            1.3
-#define BAUBLE_CLR_Q            0.9
-#define TOPPER_SCALE            2.0
 
 float add(float d1, float d2) {
 	return min(d2, d1);
@@ -400,7 +386,7 @@ float tree(vec3 p) {
 	t2.x *= TREE2_SCALE;
 	add(res, t2);
 
-	// trunk    
+	// 幹    
 	vec2 tr = vec2(cone(p.xyz, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
 	add(res, tr);
 

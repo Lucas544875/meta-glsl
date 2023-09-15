@@ -40,12 +40,12 @@ struct effectConfig{
 };
 
 const effectConfig effect = effectConfig(
-  true, //反射
+  false, //反射
   true,  //アンビエント
   false, //ハイライト(鏡面反射)
   true, //拡散光
   false,  //白熱光
-  true,  //ソフトシャドウ
+  false,  //ソフトシャドウ
   false, //大域照明
   false, //グロー
   true,  //霧
@@ -59,26 +59,13 @@ struct dfstruct{
 `
 let fs_main1 =`
 float floor1(vec3 z){
-  return plane(z,vec3(0,0,1),-1.95) - noise(z.xy*10.0)*0.5;
-}
-
-float noiseBall(vec3 z){
-  vec3 center = vec3(0,0,0);
-  vec3 p = normalize(z - center);
-  float theta = atan(p.x,p.y);
-  float phi = atan(p.z,length(p.xy));
-  float n = noise(vec2(theta*cos(phi),phi)*300.0)*(theta/PI2+0.5)+noise(vec2((theta+PI2)*cos(phi),phi)*300.0)*(0.5-theta/PI2);
-  
-  return sphere(z, center, 1.5)-n*0.8;
+  return plane(z,vec3(0,0,1),-1.95);
 }
 
 dfstruct distanceFunction(vec3 z){
-  dfstruct water = dfstruct(floor1(z),2);
-  dfstruct noiseBall = dfstruct(noiseBall(z),0);
+  dfstruct tree = dfstruct(tree(z),0);
 
-  dfstruct df;
-  df = dfmin(water,noiseBall);
-  return df;
+  return tree;
 }
 dfstruct depthFunction(vec3 z){
   z=z +vec3(-2,0,0);

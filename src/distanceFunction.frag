@@ -241,13 +241,171 @@ float edgeTorus(vec3 p, float radius, float width, float height){
 	return max(v.x - width,v.y-height);
 }
 
-float gear(vec3 z, float ra, float rb, float thickness, int theeth, float w){
-  z = pmod(z,vec3(0),vec3(0,0,1),theeth,0.0);
-  float radius = (3.0*ra+rb)/4.0;
-  float width = (rb-ra)/4.0;
-  float a = edgeTorus(z, radius, width, thickness);
-  float b = sdBox(z-vec3(0,(ra+rb)/2.0,0), vec3(w,(rb-ra)/2.0,thickness));
-  return min(a,b)-0.01;
+float sphere(vec3 p, float r) {
+    return length(p) - r;
+}
+
+float cone(in vec3 p, float r, float h) {
+    return max(abs(p.y) - h, length(p.xz)) - r*clamp(h - abs(p.y), 0.0, h);
+}
+
+float cylinder(vec3 p, vec2 h) {
+    vec2 d = abs(vec2(length(p.xz), p.y)) - h;
+    return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+}
+
+#define NORMAL_EPS              0.001
+
+#define NEAR_CLIP_PLANE         1.0
+#define FAR_CLIP_PLANE          100.0
+#define MAX_RAYCAST_STEPS       200
+#define STEP_DAMPING            0.7
+#define DIST_EPSILON            0.001
+#define MAX_RAY_BOUNCES         3.0
+
+#define MAX_SHADOW_DIST         10.0
+
+#define AMBIENT_COLOR           vec3(0.03, 0.03, 0.03)
+#define LIGHT_COLOR             vec3(0.8, 1.0, 0.9)
+#define SPEC_COLOR              vec3(0.8, 0.90, 0.60)
+
+#define SPEC_POWER              16.0
+
+#define FOG_DENSITY             0.001
+
+#define CAM_DIST                18.0
+#define CAM_H                   1.0
+#define CAM_FOV_FACTOR 4.0
+#define LOOK_AT_H               4.0
+#define LOOK_AT                 vec3(0.0, LOOK_AT_H, 0.0)
+
+#define MTL_BACKGROUND          -1.0
+#define MTL_GROUND              1.0
+#define MTL_NEEDLE              2.0
+#define MTL_STEM                3.0
+#define MTL_TOPPER              4.0
+#define MTL_CAP                 5.0
+#define MTL_BAUBLE              6.0
+
+#define CLR_BACKGROUND          vec3(0.3, 0.342, 0.5)
+#define CLR_GROUND              vec3(3.3, 3.3, 4.5)
+#define CLR_NEEDLE              vec3(0.152,0.36,0.18)
+#define CLR_STEM                vec3(0.79,0.51,0.066)
+#define CLR_TOPPER              vec3(1.6,1.0,0.6)
+#define CLR_CAP                 vec3(1.2,1.0,0.8)
+
+#define BAUBLE_REFLECTIVITY     0.7
+
+#define TREE_H                  4.0
+#define TREE_R                  3.0
+#define TREE_CURVATURE          1.0
+#define TRUNK_WIDTH             0.025
+#define TREE2_ANGLE             0.4
+#define TREE2_OFFSET            0.4
+#define TREE2_SCALE             0.9
+
+
+#define NEEDLE_LENGTH           0.5
+#define NEEDLE_SPACING          0.15
+#define NEEDLE_THICKNESS        0.05
+#define NEEDLES_RADIAL_NUM      17.0
+#define NEEDLE_BEND             0.99
+#define NEEDLE_TWIST            1.0
+#define NEEDLE_GAIN             0.7
+#define STEM_THICKNESS          0.02
+#define BRANCH_ANGLE            0.38
+#define BRANCH_SPACING          1.2
+#define BRANCH_NUM_MAX          9.0
+#define BRANCH_NUM_FADE         2.0
+
+#define BAUBLE_SIZE             0.5
+#define BAUBLE_SPACING          1.9
+#define BAUBLE_COUNT_FADE1      1.2
+#define BAUBLE_COUNT_FADE2      0.3
+#define BAUBLE_JITTER           0.05
+#define BAUBLE_SPREAD           0.6
+#define BAUBLE_MTL_SEED         131.0
+#define BAUBLE_YIQ_MUL          vec3(0.8, 1.1, 0.6)
+#define BAUBLE_CLR_Y            0.7
+#define BAUBLE_CLR_I            1.3
+#define BAUBLE_CLR_Q            0.9
+#define TOPPER_SCALE            2.0
+
+float add(float d1, float d2) {
+    return min(d2, d1);
+}
+float intersect(float d1, float d2) {
+    return max(d2, d1);
+}
+void add(inout vec2 d1, in vec2 d2) {
+    if (d2.x < d1.x) d1 = d2;
+}
+void intersect(inout vec2 d1, in vec2 d2) {
+    if (d1.x < d2.x) d1 = d2;
+}
+
+vec2 rotate(vec2 p, float ang) {
+	float c = cos(ang), s = sin(ang);
+	return vec2(p.x*c-p.y*s, p.x*s+p.y*c);
+}
+
+float repeat(float coord, float spacing) {
+    return mod(coord, spacing) - spacing*0.5;
+}
+
+vec2 repeatAng(vec2 p, float n) {
+    float ang = 2.0*PI/n;
+    float sector = floor(atan(p.x, p.y)/ang + 0.5);
+    p = rotate(p, sector*ang);
+    return p;
+}
+
+float needles(in vec3 p) {
+    p.xy = rotate(p.xy, -length(p.xz)*NEEDLE_TWIST);
+    p.xy = repeatAng(p.xy, NEEDLES_RADIAL_NUM);
+    p.yz = rotate(p.yz, -NEEDLE_BEND);
+    p.y -= p.z*NEEDLE_GAIN;
+    p.z = min(p.z, 0.0);
+    p.z = repeat(p.z, NEEDLE_SPACING);
+    return cone(p, NEEDLE_THICKNESS, NEEDLE_LENGTH);
+}
+
+vec2 branch(in vec3 p) {
+    vec2 res = vec2(needles(p), MTL_NEEDLE);
+    float s = cylinder(p.xzy + vec3(0.0, 100.0, 0.0), vec2(STEM_THICKNESS, 100.0));
+    vec2 stem = vec2(s, MTL_STEM);
+    add(res, stem);
+    return res;
+}
+
+vec2 halfTree(vec3 p) {
+    float section = floor(p.y/BRANCH_SPACING);
+    float numBranches =  max(2.0, BRANCH_NUM_MAX - section*BRANCH_NUM_FADE);
+    p.xz = repeatAng(p.xz, numBranches);
+    p.z -= TREE_R*TREE_CURVATURE;
+    p.yz = rotate(p.yz, BRANCH_ANGLE);
+    p.y = repeat(p.y, BRANCH_SPACING);
+    return branch(p);
+}
+
+float tree(vec3 p) {
+	//  the first bunch of branches
+	vec2 res = halfTree(p); 
+	
+	// the second bunch of branches (to hide the regularity)
+	p.xz = rotate(p.xz, TREE2_ANGLE);
+	p.y -= BRANCH_SPACING*TREE2_OFFSET;
+	p /= TREE2_SCALE;
+	vec2 t2 = halfTree(p);
+	t2.x *= TREE2_SCALE;
+	add(res, t2);
+
+	// trunk    
+	vec2 tr = vec2(cone(p.xyz, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
+	add(res, tr);
+
+	res.x = intersect(res.x, sphere(p - vec3(0.0, TREE_H*0.5 + 1.0, 0.0), TREE_H + 1.0));    
+	return res.x;
 }
 
 `

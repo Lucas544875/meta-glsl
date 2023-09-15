@@ -242,16 +242,16 @@ float edgeTorus(vec3 p, float radius, float width, float height){
 }
 
 float sphere(vec3 p, float r) {
-    return length(p) - r;
+	return length(p) - r;
 }
 
 float cone(in vec3 p, float r, float h) {
-    return max(abs(p.y) - h, length(p.xz)) - r*clamp(h - abs(p.y), 0.0, h);
+	return max(abs(p.y) - h, length(p.xz)) - r*clamp(h - abs(p.y), 0.0, h);
 }
 
 float cylinder(vec3 p, vec2 h) {
-    vec2 d = abs(vec2(length(p.xz), p.y)) - h;
-    return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
+	vec2 d = abs(vec2(length(p.xz), p.y)) - h;
+	return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
 }
 
 #define NORMAL_EPS              0.001
@@ -332,16 +332,16 @@ float cylinder(vec3 p, vec2 h) {
 #define TOPPER_SCALE            2.0
 
 float add(float d1, float d2) {
-    return min(d2, d1);
+	return min(d2, d1);
 }
 float intersect(float d1, float d2) {
-    return max(d2, d1);
+	return max(d2, d1);
 }
 void add(inout vec2 d1, in vec2 d2) {
-    if (d2.x < d1.x) d1 = d2;
+	if (d2.x < d1.x) d1 = d2;
 }
 void intersect(inout vec2 d1, in vec2 d2) {
-    if (d1.x < d2.x) d1 = d2;
+	if (d1.x < d2.x) d1 = d2;
 }
 
 vec2 rotate(vec2 p, float ang) {
@@ -350,42 +350,42 @@ vec2 rotate(vec2 p, float ang) {
 }
 
 float repeat(float coord, float spacing) {
-    return mod(coord, spacing) - spacing*0.5;
+	return mod(coord, spacing) - spacing*0.5;
 }
 
 vec2 repeatAng(vec2 p, float n) {
-    float ang = 2.0*PI/n;
-    float sector = floor(atan(p.x, p.y)/ang + 0.5);
-    p = rotate(p, sector*ang);
-    return p;
+	float ang = 2.0*PI/n;
+	float sector = floor(atan(p.x, p.y)/ang + 0.5);
+	p = rotate(p, sector*ang);
+	return p;
 }
 
 float needles(in vec3 p) {
-    p.xy = rotate(p.xy, -length(p.xz)*NEEDLE_TWIST);
-    p.xy = repeatAng(p.xy, NEEDLES_RADIAL_NUM);
-    p.yz = rotate(p.yz, -NEEDLE_BEND);
-    p.y -= p.z*NEEDLE_GAIN;
-    p.z = min(p.z, 0.0);
-    p.z = repeat(p.z, NEEDLE_SPACING);
-    return cone(p, NEEDLE_THICKNESS, NEEDLE_LENGTH);
+	p.xy = rotate(p.xy, -length(p.xz)*NEEDLE_TWIST);
+	p.xy = repeatAng(p.xy, NEEDLES_RADIAL_NUM);
+	p.yz = rotate(p.yz, -NEEDLE_BEND);
+	p.y -= p.z*NEEDLE_GAIN;
+	p.z = min(p.z, 0.0);
+	p.z = repeat(p.z, NEEDLE_SPACING);
+	return cone(p, NEEDLE_THICKNESS, NEEDLE_LENGTH);
 }
 
 vec2 branch(in vec3 p) {
-    vec2 res = vec2(needles(p), MTL_NEEDLE);
-    float s = cylinder(p.xzy + vec3(0.0, 100.0, 0.0), vec2(STEM_THICKNESS, 100.0));
-    vec2 stem = vec2(s, MTL_STEM);
-    add(res, stem);
-    return res;
+	vec2 res = vec2(needles(p), MTL_NEEDLE);
+	float s = cylinder(p.xzy + vec3(0.0, 100.0, 0.0), vec2(STEM_THICKNESS, 100.0));
+	vec2 stem = vec2(s, MTL_STEM);
+	add(res, stem);
+	return res;
 }
 
 vec2 halfTree(vec3 p) {
-    float section = floor(p.y/BRANCH_SPACING);
-    float numBranches =  max(2.0, BRANCH_NUM_MAX - section*BRANCH_NUM_FADE);
-    p.xz = repeatAng(p.xz, numBranches);
-    p.z -= TREE_R*TREE_CURVATURE;
-    p.yz = rotate(p.yz, BRANCH_ANGLE);
-    p.y = repeat(p.y, BRANCH_SPACING);
-    return branch(p);
+	float section = floor(p.y/BRANCH_SPACING);
+	float numBranches =  max(2.0, BRANCH_NUM_MAX - section*BRANCH_NUM_FADE);
+	p.xz = repeatAng(p.xz, numBranches);
+	p.z -= TREE_R*TREE_CURVATURE;
+	p.yz = rotate(p.yz, BRANCH_ANGLE);
+	p.y = repeat(p.y, BRANCH_SPACING);
+	return branch(p);
 }
 
 float tree(vec3 p) {

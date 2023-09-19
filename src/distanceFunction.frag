@@ -246,11 +246,11 @@ float sphere(vec3 p, float r) {
 }
 
 float cone(in vec3 p, float r, float h) {
-	return max(abs(p.y) - h, length(p.xz)) - r*clamp(h - abs(p.y), 0.0, h);
+	return max(abs(p.z) - h, length(p.xy)) - r*clamp(h - abs(p.z), 0.0, h);
 }
 
 float cylinder(vec3 p, vec2 h) {
-	vec2 d = abs(vec2(length(p.xz), p.y)) - h;
+	vec2 d = abs(vec2(length(p.xy), p.z)) - h;
 	return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
 }
 
@@ -347,30 +347,30 @@ vec2 repeatAng(vec2 p, float n) {
 }
 
 float needles(in vec3 p) {
-	p.xy = rotate(p.xy, -length(p.xz)*NEEDLE_TWIST);
-	p.xy = repeatAng(p.xy, NEEDLES_RADIAL_NUM);
-	p.yz = rotate(p.yz, -NEEDLE_BEND);
-	p.y -= p.z*NEEDLE_GAIN;
-	p.z = min(p.z, 0.0);
-	p.z = repeat(p.z, NEEDLE_SPACING);
+	p.xz = rotate(p.xz, -length(p.xy)*NEEDLE_TWIST);
+	p.xz = repeatAng(p.xz, NEEDLES_RADIAL_NUM);
+	p.zy = rotate(p.zy, -NEEDLE_BEND);
+	p.z -= p.y*NEEDLE_GAIN;
+	p.y = min(p.y, 0.0);
+	p.y = repeat(p.y, NEEDLE_SPACING);
 	return cone(p, NEEDLE_THICKNESS, NEEDLE_LENGTH);
 }
 
 vec2 branch(in vec3 p) {
 	vec2 res = vec2(needles(p), MTL_NEEDLE);
-	float s = cylinder(p.xzy + vec3(0.0, 100.0, 0.0), vec2(STEM_THICKNESS, 100.0));
+	float s = cylinder(p.xzy + vec3(0.0, 0.0, 100.0), vec2(STEM_THICKNESS, 100.0));
 	vec2 stem = vec2(s, MTL_STEM);
 	add(res, stem);
 	return res;
 }
 
 vec2 halfTree(vec3 p) {
-	float section = floor(p.y/BRANCH_SPACING);
+	float section = floor(p.z/BRANCH_SPACING);
 	float numBranches =  max(2.0, BRANCH_NUM_MAX - section*BRANCH_NUM_FADE);
-	p.xz = repeatAng(p.xz, numBranches);
-	p.z -= TREE_R*TREE_CURVATURE;
-	p.yz = rotate(p.yz, BRANCH_ANGLE);
-	p.y = repeat(p.y, BRANCH_SPACING);
+	p.xy = repeatAng(p.xy, numBranches);
+	p.y -= TREE_R*TREE_CURVATURE;
+	p.zy = rotate(p.zy, BRANCH_ANGLE);
+	p.z = repeat(p.z, BRANCH_SPACING);
 	return branch(p);
 }
 
@@ -379,8 +379,8 @@ float tree(vec3 p) {
 	vec2 res = halfTree(p); 
 	
 	// the second bunch of branches (to hide the regularity)
-	p.xz = rotate(p.xz, TREE2_ANGLE);
-	p.y -= BRANCH_SPACING*TREE2_OFFSET;
+	p.xy = rotate(p.xy, TREE2_ANGLE);
+	p.z -= BRANCH_SPACING*TREE2_OFFSET;
 	p /= TREE2_SCALE;
 	vec2 t2 = halfTree(p);
 	t2.x *= TREE2_SCALE;
@@ -390,7 +390,7 @@ float tree(vec3 p) {
 	vec2 tr = vec2(cone(p.xyz, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
 	add(res, tr);
 
-	res.x = intersect(res.x, sphere(p - vec3(0.0, TREE_H*0.5 + 1.0, 0.0), TREE_H + 1.0));    
+	res.x = intersect(res.x, sphere(p, vec3(0.0, 0.0, TREE_H*0.5 + 1.0), TREE_H + 1.0));    
 	return res.x;
 }
 

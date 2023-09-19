@@ -254,47 +254,13 @@ float cylinder(vec3 p, vec2 h) {
 	return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
 }
 
-#define NORMAL_EPS              0.001
-
-#define NEAR_CLIP_PLANE         1.0
-#define FAR_CLIP_PLANE          100.0
-#define MAX_RAYCAST_STEPS       200
-#define STEP_DAMPING            0.7
-#define DIST_EPSILON            0.001
-#define MAX_RAY_BOUNCES         3.0
-
-#define MAX_SHADOW_DIST         10.0
-
-#define AMBIENT_COLOR           vec3(0.03, 0.03, 0.03)
-#define LIGHT_COLOR             vec3(0.8, 1.0, 0.9)
-#define SPEC_COLOR              vec3(0.8, 0.90, 0.60)
-
-#define SPEC_POWER              16.0
-
-#define FOG_DENSITY             0.001
-
-#define CAM_DIST                18.0
-#define CAM_H                   1.0
-#define CAM_FOV_FACTOR 4.0
-#define LOOK_AT_H               4.0
-#define LOOK_AT                 vec3(0.0, LOOK_AT_H, 0.0)
-
-#define MTL_BACKGROUND          -1.0
-#define MTL_GROUND              1.0
 #define MTL_NEEDLE              2.0
 #define MTL_STEM                3.0
-#define MTL_TOPPER              4.0
-#define MTL_CAP                 5.0
-#define MTL_BAUBLE              6.0
 
-#define CLR_BACKGROUND          vec3(0.3, 0.342, 0.5)
-#define CLR_GROUND              vec3(3.3, 3.3, 4.5)
+// 不使用
 #define CLR_NEEDLE              vec3(0.152,0.36,0.18)
 #define CLR_STEM                vec3(0.79,0.51,0.066)
-#define CLR_TOPPER              vec3(1.6,1.0,0.6)
-#define CLR_CAP                 vec3(1.2,1.0,0.8)
-
-#define BAUBLE_REFLECTIVITY     0.7
+///////////////////////////
 
 #define TREE_H                  4.0
 #define TREE_R                  3.0

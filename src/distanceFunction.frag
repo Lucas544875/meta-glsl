@@ -16,20 +16,12 @@ dfstruct dfmeta(dfstruct df1, dfstruct df2,float k){ //メタボール風の結�
   return dfstruct(distmin -log(h) / k, id);
 }
 
-dfstruct dfmax(dfstruct df1, dfstruct df2){ //共通部分
-  if (df1.dist < df2.dist){
-    return df2;
-  }else{
-    return df1;
-  }
+void dfmax(inout dfstruct df1, in dfstruct df2){ //共通部分
+	if (df1.dist < df2.dist) df1 = df2;
 }
 
-dfstruct dfmin(dfstruct df1, dfstruct df2){//和集合
-  if (df1.dist < df2.dist){
-    return df1;
-  }else{
-    return df2;
-  }
+void  dfmin(inout dfstruct df1, in dfstruct df2){//和集合
+	if (df1.dist > df2.dist) df1 = df2;
 }
 
 vec2 pmod2d(vec2 p, float r,float section) {
@@ -254,8 +246,8 @@ float cylinder(vec3 p, vec2 h) {
 	return min(max(d.x, d.y), 0.0) + length(max(d, 0.0));
 }
 
-#define MTL_NEEDLE              2.0
-#define MTL_STEM                3.0
+#define MTL_NEEDLE              0
+#define MTL_STEM                0
 
 // 不使用
 #define CLR_NEEDLE              vec3(0.152,0.36,0.18)

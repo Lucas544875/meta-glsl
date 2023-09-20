@@ -5,14 +5,14 @@ uniform vec2  resolution;
 uniform vec3  cDir;
 uniform vec3  cPos;
 
-const float PI = 3.14159265;
-const float PI2 = PI*2.0;
-const float E = 2.71828182;
-const float INFINITY = 1.e20;
-const float FOV = 30.0 * 0.5 * PI / 180.0;//field of view
-const vec3 LightDir = normalize(vec3(2.0,1.0,1.0));
-const int Iteration =128;
-const int MAX_REFRECT = 2;
+#define PI          3.14159265
+#define PI2         (PI*2.0)
+#define E           2.71828182
+#define INFINITY    1.e20
+#define FOV         (30.0 * 0.5 * PI / 180.0)//field of view
+#define LightDir    normalize(vec3(2.0,1.0,1.0))
+#define Iteration   128
+#define MAX_REFRECT 2
 
 struct rayobj{
   vec3  rPos;     //レイの場所

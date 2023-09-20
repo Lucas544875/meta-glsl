@@ -1,22 +1,22 @@
 let fs_material =`
 //マテリアルの設定
-const int SAIHATE = 0;
-const int CYAN = 1;
-const int WHITE = 2;
-const int GRID = 3;
-const int MANDEL = 4;
-const int BROWN = 5;
-const int NORMAL = 6;
-const int METAL = 7;
-const int KADO = 8;
-const int MAT = 9;
-const int NOISE = 10;
-const int SNOISE = 11;
-const int WATER = 12;
-const int CUSTOM = 13;
-const int LESSSTEP = 97;
-const int DEBUG = 98;
-const int ERROR = 99;
+#define SAIHATE    0
+#define CYAN       1
+#define WHITE      2
+#define GRID       3
+#define MANDEL     4
+#define BROWN      5
+#define NORMAL     6
+#define METAL      7
+#define KADO       8
+#define MAT        9
+#define NOISE     10
+#define SNOISE    11
+#define WATER     12
+#define CUSTOM    13
+#define LESSSTEP  97
+#define DEBUG     98
+#define ERROR     99
 
 //マテリアルの設定
 int materialOf(int objectID){

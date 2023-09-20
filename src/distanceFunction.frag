@@ -322,42 +322,4 @@ float needles(in vec3 p) {
 	return cone(p, NEEDLE_THICKNESS, NEEDLE_LENGTH);
 }
 
-vec2 branch(in vec3 p) {
-	vec2 res = vec2(needles(p), MTL_NEEDLE);
-	float s = cylinder(p.xzy + vec3(0.0, 0.0, 100.0), vec2(STEM_THICKNESS, 100.0));
-	vec2 stem = vec2(s, MTL_STEM);
-	add(res, stem);
-	return res;
-}
-
-vec2 halfTree(vec3 p) {
-	float section = floor(p.z/BRANCH_SPACING);
-	float numBranches =  max(2.0, BRANCH_NUM_MAX - section*BRANCH_NUM_FADE);
-	p.xy = repeatAng(p.xy, numBranches);
-	p.y -= TREE_R*TREE_CURVATURE;
-	p.zy = rotate(p.zy, BRANCH_ANGLE);
-	p.z = repeat(p.z, BRANCH_SPACING);
-	return branch(p);
-}
-
-float tree(vec3 p) {
-	//  the first bunch of branches
-	vec2 res = halfTree(p); 
-	
-	// the second bunch of branches (to hide the regularity)
-	p.xy = rotate(p.xy, TREE2_ANGLE);
-	p.z -= BRANCH_SPACING*TREE2_OFFSET;
-	p /= TREE2_SCALE;
-	vec2 t2 = halfTree(p);
-	t2.x *= TREE2_SCALE;
-	add(res, t2);
-
-	// 幹    
-	vec2 tr = vec2(cone(p.xyz, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
-	add(res, tr);
-
-	res.x = intersect(res.x, sphere(p, vec3(0.0, 0.0, TREE_H*0.5 + 1.0), TREE_H + 1.0));    
-	return res.x;
-}
-
 `

@@ -62,15 +62,15 @@ float floor1(vec3 z){
   return plane(z,vec3(0,0,1),-1.95);
 }
 
-vec2 branch(in vec3 p) {
-	vec2 res = vec2(needles(p), MTL_NEEDLE);
+dfstruct branch(in vec3 p) {
+	dfstruct res = dfstruct(needles(p), MTL_NEEDLE);
 	float s = cylinder(p.xzy + vec3(0.0, 0.0, 100.0), vec2(STEM_THICKNESS, 100.0));
-	vec2 stem = vec2(s, MTL_STEM);
-	add(res, stem);
+	dfstruct stem = dfstruct(s, MTL_STEM);
+	dfmin(res, stem);
 	return res;
 }
 
-vec2 halfTree(vec3 p) {
+dfstruct halfTree(vec3 p) {
 	float section = floor(p.z/BRANCH_SPACING);
 	float numBranches =  max(2.0, BRANCH_NUM_MAX - section*BRANCH_NUM_FADE);
 	p.xy = repeatAng(p.xy, numBranches);
@@ -82,22 +82,23 @@ vec2 halfTree(vec3 p) {
 
 dfstruct distanceFunction(vec3 p) {
 	//  the first bunch of branches
-	vec2 res = halfTree(p); 
+	dfstruct res = halfTree(p); 
 	
 	// the second bunch of branches (to hide the regularity)
 	p.xy = rotate(p.xy, TREE2_ANGLE);
 	p.z -= BRANCH_SPACING*TREE2_OFFSET;
 	p /= TREE2_SCALE;
-	vec2 t2 = halfTree(p);
-	t2.x *= TREE2_SCALE;
-	add(res, t2);
+	dfstruct t2 = halfTree(p);
+	t2.dist *= TREE2_SCALE;
+	dfmin(res, t2);
 
 	// 幹    
-	vec2 tr = vec2(cone(p.xyz, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
-	add(res, tr);
+	dfstruct tr = dfstruct(cone(p, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
+	dfmin(res, tr);
 
-	res.x = intersect(res.x, sphere(p, vec3(0.0, 0.0, TREE_H*0.5 + 1.0), TREE_H + 1.0));    
-	return dfstruct(res.x, 0);
+	res.dist = intersect(res.dist, sphere(p, vec3(0.0, 0.0, TREE_H*0.5 + 1.0), TREE_H + 1.0));
+
+	return res;
 }
 
 dfstruct depthFunction(vec3 z){

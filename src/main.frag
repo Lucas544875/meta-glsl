@@ -72,11 +72,10 @@ dfstruct branch(in vec3 p, in float amount) {
 
 dfstruct halfTree(vec3 p) {
   float section = floor(dot(vec2(length(p.xy),p.z),vec2(-sin(BRANCH_ANGLE), cos(BRANCH_ANGLE)))/BRANCH_SPACING);
-	float numBranches =  max(2.0, BRANCH_NUM_MAX - section*BRANCH_NUM_FADE);
+	float numBranches =  max(3.0, BRANCH_NUM_MAX - section*BRANCH_NUM_FADE);
   float lower_end = 1.0;
   numBranches = min(numBranches, BRANCH_NUM_MAX - lower_end*BRANCH_NUM_FADE);
 	p.xy = repeatAng(p.xy, numBranches);
-  // float needleAmount = floor(((TREE_H*2.0) - section*BRANCH_SPACING)*0.4/NEEDLE_SPACING);
 	p.y -= TREE_R*TREE_CURVATURE;
 	p.zy = rotate(p.zy, BRANCH_ANGLE);
 
@@ -87,7 +86,7 @@ dfstruct halfTree(vec3 p) {
     p.z -= BRANCH_SPACING*0.5;
   }
   // p.z = repeat(p.z, BRANCH_SPACING);
-	return branch(p - vec3(0.0,0.0,lower_end_height), 50.0);
+	return branch(p - vec3(0.0,0.0,lower_end_height), 10.0);
 }
 
 dfstruct distanceFunction(vec3 p) {

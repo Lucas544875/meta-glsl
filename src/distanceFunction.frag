@@ -275,19 +275,6 @@ float cylinder(vec3 p, vec2 h) {
 #define BRANCH_NUM_MAX          9.0
 #define BRANCH_NUM_FADE         2.0
 
-float add(float d1, float d2) {
-	return min(d2, d1);
-}
-float intersect(float d1, float d2) {
-	return max(d2, d1);
-}
-void add(inout vec2 d1, in vec2 d2) {
-	if (d2.x < d1.x) d1 = d2;
-}
-void intersect(inout vec2 d1, in vec2 d2) {
-	if (d1.x < d2.x) d1 = d2;
-}
-
 vec2 rotate(vec2 p, float ang) {
 	float c = cos(ang), s = sin(ang);
 	return vec2(p.x*c-p.y*s, p.x*s+p.y*c);
@@ -304,12 +291,13 @@ vec2 repeatAng(vec2 p, float n) {
 	return p;
 }
 
-float needles(in vec3 p) {
+float needles(in vec3 p, float amount) {
 	p.xz = rotate(p.xz, -length(p.xy)*NEEDLE_TWIST);
 	p.xz = repeatAng(p.xz, NEEDLES_RADIAL_NUM);
-	p.zy = rotate(p.zy, -NEEDLE_BEND);
+	p.yz = rotate(p.yz, NEEDLE_BEND);
 	p.z -= p.y*NEEDLE_GAIN;
 	p.y = min(p.y, 0.0);
+	p.y = max(p.y, -NEEDLE_SPACING*amount);
 	p.y = repeat(p.y, NEEDLE_SPACING);
 	return cone(p, NEEDLE_THICKNESS, NEEDLE_LENGTH);
 }

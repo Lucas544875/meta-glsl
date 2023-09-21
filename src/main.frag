@@ -62,8 +62,8 @@ float floor1(vec3 z){
   return plane(z,vec3(0,0,1),-1.95);
 }
 
-dfstruct branch(in vec3 p) {
-	dfstruct res = dfstruct(needles(p), MTL_NEEDLE);
+dfstruct branch(in vec3 p, in float amount) {
+	dfstruct res = dfstruct(needles(p, amount), MTL_NEEDLE);
 	float s = cylinder(p.xzy + vec3(0.0, 0.0, 100.0), vec2(STEM_THICKNESS, 100.0));
 	dfstruct stem = dfstruct(s, MTL_STEM);
 	dfmin(res, stem);
@@ -71,16 +71,27 @@ dfstruct branch(in vec3 p) {
 }
 
 dfstruct halfTree(vec3 p) {
-	float section = floor(p.z/BRANCH_SPACING);
+  float section = floor(dot(vec2(length(p.xy),p.z),vec2(-sin(BRANCH_ANGLE), cos(BRANCH_ANGLE)))/BRANCH_SPACING);
 	float numBranches =  max(2.0, BRANCH_NUM_MAX - section*BRANCH_NUM_FADE);
+  float lower_end = 1.0;
+  numBranches = min(numBranches, BRANCH_NUM_MAX - lower_end*BRANCH_NUM_FADE);
 	p.xy = repeatAng(p.xy, numBranches);
+  // float needleAmount = floor(((TREE_H*2.0) - section*BRANCH_SPACING)*0.4/NEEDLE_SPACING);
 	p.y -= TREE_R*TREE_CURVATURE;
 	p.zy = rotate(p.zy, BRANCH_ANGLE);
-	p.z = repeat(p.z, BRANCH_SPACING);
-	return branch(p);
+
+  float lower_end_height = lower_end * BRANCH_SPACING;
+  if (section >= lower_end){
+    p.z = repeat(p.z, BRANCH_SPACING) + lower_end_height;
+  }else{
+    p.z -= BRANCH_SPACING*0.5;
+  }
+  // p.z = repeat(p.z, BRANCH_SPACING);
+	return branch(p - vec3(0.0,0.0,lower_end_height), 50.0);
 }
 
 dfstruct distanceFunction(vec3 p) {
+  vec3 z = p;
 	//  the first bunch of branches
 	dfstruct res = halfTree(p); 
 	
@@ -93,12 +104,12 @@ dfstruct distanceFunction(vec3 p) {
 	dfmin(res, t2);
 
 	// 幹    
-	dfstruct tr = dfstruct(cone(p, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
+	dfstruct tr = dfstruct(cone(z, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
 	dfmin(res, tr);
 
-	res.dist = intersect(res.dist, sphere(p, vec3(0.0, 0.0, TREE_H*0.5 + 1.0), TREE_H + 1.0));
+	res.dist = max(res.dist, sphere(z, vec3(0.0, 0.0, TREE_H*0.5 + 1.0), TREE_H + 1.0));
 
-	return res;
+  return res;
 }
 
 dfstruct depthFunction(vec3 z){

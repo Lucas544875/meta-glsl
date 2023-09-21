@@ -17,7 +17,7 @@ void raymarch(inout rayobj ray){
       ray.iterate = float(i)/float(Iteration);
       return;
     }
-    ray.rPos += ray.distance * ray.direction * 0.5;
+    ray.rPos += ray.distance * ray.direction;
   }
   ray.objectID = 99;
   ray.iterate = 1.0;

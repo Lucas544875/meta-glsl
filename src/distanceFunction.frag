@@ -259,14 +259,6 @@ float sdCone( in vec3 p, in vec2 c, float h ){
 	return sqrt(d)*sign(s);
 }
 
-#define MTL_NEEDLE              0
-#define MTL_STEM                0
-
-// 不使用
-#define CLR_NEEDLE              vec3(0.152,0.36,0.18)
-#define CLR_STEM                vec3(0.79,0.51,0.066)
-///////////////////////////
-
 #define TREE_H                  4.0
 #define TREE_R                  3.0
 #define TREE_CURVATURE          1.0

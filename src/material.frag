@@ -1,34 +1,41 @@
 let fs_material =`
 //マテリアルの設定
-#define SAIHATE    0
-#define CYAN       1
-#define WHITE      2
-#define GRID       3
-#define MANDEL     4
-#define BROWN      5
-#define NORMAL     6
-#define METAL      7
-#define KADO       8
-#define MAT        9
-#define NOISE     10
-#define SNOISE    11
-#define WATER     12
-#define CUSTOM    13
-#define LESSSTEP  97
-#define DEBUG     98
-#define ERROR     99
+#define SAIHATE             0
+#define CYAN                1
+#define WHITE               2
+#define GRID                3
+#define MANDEL              4
+#define BROWN               5
+#define NORMAL              6
+#define METAL               7
+#define KADO                8
+#define MAT                 9
+#define NOISE              10
+#define SNOISE             11
+#define WATER              12
+#define CUSTOM             13
+#define MTL_NEEDLE         14
+#define MTL_STEM           15
+#define LESSSTEP           97
+#define DEBUG              98
+#define ERROR              99
+
+#define OBJ_SAIHATE       198
+#define OBJ_LESSSTEP      199
 
 //マテリアルの設定
 int materialOf(int objectID){
-  if (objectID == 0){
+  if (objectID == OBJ_CUSTOM){
     return CUSTOM;
-  }else if (objectID == 1){
+  }else if (objectID == OBJ_COORD_PLANE){
     return GRID;
-  }else if (objectID == 2){
-    return WATER;
-  }else if (objectID == 98){
+  }else if (objectID == OBJ_NEEDLE){
+    return MTL_NEEDLE;
+  }else if (objectID == OBJ_STEM){
+    return MTL_STEM;
+  }else if (objectID == OBJ_SAIHATE){
     return SAIHATE;
-  }else if (objectID == 99){
+  }else if (objectID == OBJ_LESSSTEP){
     return LESSSTEP;
   }else{
     return ERROR;
@@ -83,6 +90,14 @@ vec3 customCol(vec3 rPos){
   return vec3(0.5);
 }
 
+vec3 needleCol(vec3 rPos){
+  return vec3(0.152,0.36,0.18);
+}
+
+vec3 stemCol(vec3 rPos){
+  return vec3(0.79,0.51,0.066);
+}
+
 vec3 color(rayobj ray){
   if (ray.material == GRID){
     return gridCol(ray.rPos);
@@ -112,6 +127,10 @@ vec3 color(rayobj ray){
     return waterCol(ray.rPos);
   }else if (ray.material == CUSTOM){
     return customCol(ray.rPos);
+  }else if (ray.material == MTL_NEEDLE){
+    return needleCol(ray.rPos);
+  }else if (ray.material == MTL_STEM){
+    return stemCol(ray.rPos);
   }else if (ray.material == SAIHATE || ray.material == LESSSTEP){
     float k = max(0.0,dot(normalize(ray.direction),vec3(0,0,1)));
     vec3 c1 = colorCode(255,234,183);

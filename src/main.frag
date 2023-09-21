@@ -58,14 +58,20 @@ struct dfstruct{
 };
 `
 let fs_main1 =`
+
+#define OBJ_CUSTOM        100
+#define OBJ_COORD_PLANE   101
+#define OBJ_NEEDLE        102
+#define OBJ_STEM          103
+
 float floor1(vec3 z){
   return plane(z,vec3(0,0,1),-1.95);
 }
 
 dfstruct branch(in vec3 p, in float amount) {
-	dfstruct res = dfstruct(needles(p, amount), MTL_NEEDLE);
+	dfstruct res = dfstruct(needles(p, amount), OBJ_NEEDLE);
 	float s = cylinder(p.xzy + vec3(0.0, 0.0, 100.0), vec2(STEM_THICKNESS, 100.0));
-	dfstruct stem = dfstruct(s, MTL_STEM);
+	dfstruct stem = dfstruct(s, OBJ_STEM);
 	dfmin(res, stem);
 	return res;
 }
@@ -89,13 +95,14 @@ dfstruct halfTree(vec3 p) {
 	return branch(p - vec3(0.0,0.0,lower_end_height), 10.0);
 }
 
+
 dfstruct distanceFunction(vec3 p) {
   vec3 z = p;
 
   // Bounding Box
   float bbcone = sdCone(p-vec3(0.0,0.0,TREE_H*2.0 + 1.0), vec2(sin(BRANCH_ANGLE),cos(BRANCH_ANGLE)), TREE_H*2.0 + 1.0);
   float bbstem = cone(p, TRUNK_WIDTH, TREE_H*2.0);
-  dfstruct res = dfstruct(min(bbcone, bbstem), 20);
+  dfstruct res = dfstruct(min(bbcone, bbstem), OBJ_CUSTOM);
   if (res.dist < 0.1){
     //  the first bunch of branches
     res = halfTree(p); 
@@ -109,7 +116,7 @@ dfstruct distanceFunction(vec3 p) {
     dfmin(res, t2);
 
     // stem
-    dfstruct tr = dfstruct(cone(z, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
+    dfstruct tr = dfstruct(cone(z, TRUNK_WIDTH, TREE_H*2.0), OBJ_STEM);
     dfmin(res, tr);
 
     res.dist = max(res.dist, sphere(z, vec3(0.0, 0.0, TREE_H*0.5 + 1.0), TREE_H + 1.0));

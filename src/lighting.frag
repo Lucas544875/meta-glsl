@@ -13,13 +13,13 @@ void raymarch(inout rayobj ray){
     }
     ray.len += ray.distance;
     if(ray.len > 100.0){
-      ray.objectID = 98;
+      ray.objectID = OBJ_SAIHATE;
       ray.iterate = float(i)/float(Iteration);
       return;
     }
     ray.rPos += ray.distance * ray.direction;
   }
-  ray.objectID = 99;
+  ray.objectID = OBJ_LESSSTEP;
   ray.iterate = 1.0;
 }
 

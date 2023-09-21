@@ -91,23 +91,29 @@ dfstruct halfTree(vec3 p) {
 
 dfstruct distanceFunction(vec3 p) {
   vec3 z = p;
-	//  the first bunch of branches
-	dfstruct res = halfTree(p); 
-	
-	// the second bunch of branches (to hide the regularity)
-	p.xy = rotate(p.xy, TREE2_ANGLE);
-	p.z -= BRANCH_SPACING*TREE2_OFFSET;
-	p /= TREE2_SCALE;
-	dfstruct t2 = halfTree(p);
-	t2.dist *= TREE2_SCALE;
-	dfmin(res, t2);
 
-	// 幹    
-	dfstruct tr = dfstruct(cone(z, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
-	dfmin(res, tr);
+  // Bounding Box
+  float bbcone = sdCone(p-vec3(0.0,0.0,TREE_H*2.0 + 1.0), vec2(sin(BRANCH_ANGLE),cos(BRANCH_ANGLE)), TREE_H*2.0 + 1.0);
+  float bbstem = cone(p, TRUNK_WIDTH, TREE_H*2.0);
+  dfstruct res = dfstruct(min(bbcone, bbstem), 20);
+  if (res.dist < 0.1){
+    //  the first bunch of branches
+    res = halfTree(p); 
 
-	res.dist = max(res.dist, sphere(z, vec3(0.0, 0.0, TREE_H*0.5 + 1.0), TREE_H + 1.0));
+    // the second bunch of branches (to hide the regularity)
+    p.xy = rotate(p.xy, TREE2_ANGLE);
+    p.z -= BRANCH_SPACING*TREE2_OFFSET;
+    p /= TREE2_SCALE;
+    dfstruct t2 = halfTree(p);
+    t2.dist *= TREE2_SCALE;
+    dfmin(res, t2);
 
+    // stem
+    dfstruct tr = dfstruct(cone(z, TRUNK_WIDTH, TREE_H*2.0), MTL_STEM);
+    dfmin(res, tr);
+
+    res.dist = max(res.dist, sphere(z, vec3(0.0, 0.0, TREE_H*0.5 + 1.0), TREE_H + 1.0));
+  };
   return res;
 }
 

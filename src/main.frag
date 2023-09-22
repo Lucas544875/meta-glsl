@@ -124,9 +124,16 @@ dfstruct tree(vec3 p) {
 }
 
 dfstruct distanceFunction(vec3 z) {
-  dfstruct seen = tree(z);
+  vec3 p = z;
+  float section = floor(length(z.xy)/6.0);
+  float treeNum = 1.0 + 7.0*section;
+  p.xy = repeatAng(z.xy, treeNum);
+  p.y = repeat(p.y, 6.0);
+
+  dfstruct tree = tree(p);
   dfstruct plane = dfstruct(floor1(z),OBJ_COORD_PLANE);
-  return dfmeta(seen, plane, 8.0);
+  dfstruct seen = dfmeta(tree, plane, 8.0);
+  return seen;
 }
 
 dfstruct depthFunction(vec3 z){

@@ -51,10 +51,10 @@ void trick(inout rayobj ray,in float overstep){
 }
 
 //ライティング
+#define ambIntensity 1.0
 void ambientFunc(inout rayobj ray){//アンビエント
   vec3 baseColor = color(ray);
   vec3 ambColor = vec3(1.0);
-  float ambIntensity =  0.6;
   ray.fragColor += ambIntensity * Hadamard(baseColor,ambColor);
   ray.fragColor = clamp(ray.fragColor,0.0,1.0);
 }
@@ -67,10 +67,10 @@ void specularFunc(inout rayobj ray){//鏡面反射
   ray.fragColor = clamp(ray.fragColor+specular,0.0,1.0);
 }
 
+#define diffIntensity 0.3
 void diffuseFunc(inout rayobj ray){//拡散光
   vec3 color = color(ray);
   vec3 lightColor = vec3(1.0);//(0.741, 0.741, 0.717);
-  float diffIntensity = 1.1;
   float diffuse = max(0.0,dot(LightDir, ray.normal));
   ray.fragColor += diffIntensity * diffuse * Hadamard(color,lightColor);
   ray.fragColor = clamp(ray.fragColor,0.0,1.0);
@@ -119,13 +119,13 @@ void globallightFunc(inout rayobj ray){//大域照明
 }
 
 void skysphereFunc(inout rayobj ray){//天球
-  if (ray.objectID == 98){
+  if (ray.objectID == OBJ_SAIHATE){
     ray.fragColor += color(ray);
   }
 }
 
 void lessStepFunc(inout rayobj ray){
-  if (ray.objectID == 99){
+  if (ray.objectID == OBJ_LESSSTEP){
     ray.fragColor += color(ray);
   }
 }

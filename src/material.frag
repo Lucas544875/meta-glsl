@@ -75,9 +75,9 @@ vec3 noiseCol(vec3 rPos){
   return vec3(noise(rPos.xy*100.0));
 }
 
+// seamless noise
 vec3 snoiseCol(vec3 rPos){
   const float map = 256.0;
-  // seamless noise
 	vec2 t = mod(rPos.xy*100.0, map);
 	float n = snoise(t, t/map, vec2(map), vec2(time*10.0));
   return vec3(n);
@@ -91,11 +91,28 @@ vec3 customCol(vec3 rPos){
 }
 
 vec3 needleCol(vec3 rPos){
-  return vec3(0.152,0.36,0.18);
+  vec3 normal = normal(rPos);
+  float nx = (atan(normal.x,normal.y)/(PI*2.0))+0.5;
+  float ny = normal.z;
+  float n = noise(vec2(nx*40.0,ny*100.0));
+  return rgb(118,160,126)*(n+1.0/3.0);
 }
 
 vec3 stemCol(vec3 rPos){
-  return vec3(0.79,0.51,0.066);
+  vec3 col1 = rgb(69, 53, 39); //表皮
+  vec3 col21 = rgb(112,142,116); //日向側
+  vec3 col22 = rgb(66,113,136); //中間
+  vec3 col23 = rgb(10,25,65); //日陰側
+  vec3 normal = normal(rPos);
+  float l = dot(normalize(normal.xy), normalize(LightDir.xy));
+  vec3 col2 = col21 * linearstep(0.3,0.7,l)
+            + col22 * (1.0-linearstep(0.3,-0.7,l)-linearstep(0.3,0.7,l)) 
+            + col23 * linearstep(0.3,-0.7,l);
+  float nx = (atan(normal.x,normal.y)/(PI*2.0))+0.5;
+  float ny = rPos.z/(TREE_H*2.0);
+  float n1 = snoise(vec2(nx*10000.0,ny*9000.0),vec2(nx,ny),vec2(10000.0,9000.0),vec2(0));
+  float n2 = snoise(vec2(nx*600.0,ny*2000.0),vec2(nx,ny),vec2(600.0,2000.0),vec2(0))*1.0;
+  return mix(col1,col2,linearstep(0.0,0.7,n1));
 }
 
 vec3 color(rayobj ray){

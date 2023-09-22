@@ -10,7 +10,7 @@ uniform vec3  cPos;
 #define E           2.71828182
 #define INFINITY    1.e20
 #define FOV         (30.0 * 0.5 * PI / 180.0)//field of view
-#define LightDir    normalize(vec3(2.0,1.0,1.0))
+#define LightDir    normalize(vec3(0.0,1.0,1.0))
 #define Iteration   128
 #define MAX_REFRECT 2
 
@@ -43,7 +43,7 @@ const effectConfig effect = effectConfig(
   false, //反射
   true,  //アンビエント
   false, //ハイライト(鏡面反射)
-  true, //拡散光
+  false, //拡散光
   false,  //白熱光
   false,  //ソフトシャドウ
   false, //大域照明
@@ -65,7 +65,7 @@ let fs_main1 =`
 #define OBJ_STEM          103
 
 float floor1(vec3 z){
-  return plane(z,vec3(0,0,1),-1.95);
+  return plane(z,vec3(0,0,1),-0.95);
 }
 
 dfstruct branch(in vec3 p, in float amount) {
@@ -95,14 +95,13 @@ dfstruct halfTree(vec3 p) {
 	return branch(p - vec3(0.0,0.0,lower_end_height), 10.0);
 }
 
-
-dfstruct distanceFunction(vec3 p) {
+dfstruct tree(vec3 p) {
   vec3 z = p;
 
   // Bounding Box
   float bbcone = sdCone(p-vec3(0.0,0.0,TREE_H*2.0 + 1.0), vec2(sin(BRANCH_ANGLE),cos(BRANCH_ANGLE)), TREE_H*2.0 + 1.0);
   float bbstem = cone(p, TRUNK_WIDTH, TREE_H*2.0);
-  dfstruct res = dfstruct(min(bbcone, bbstem), OBJ_CUSTOM);
+  dfstruct res = dfstruct(min(bbcone, bbstem), OBJ_STEM);
   if (res.dist < 0.1){
     //  the first bunch of branches
     res = halfTree(p); 
@@ -122,6 +121,12 @@ dfstruct distanceFunction(vec3 p) {
     res.dist = max(res.dist, sphere(z, vec3(0.0, 0.0, TREE_H*0.5 + 1.0), TREE_H + 1.0));
   };
   return res;
+}
+
+dfstruct distanceFunction(vec3 z) {
+  dfstruct seen = tree(z);
+  dfstruct plane = dfstruct(floor1(z),OBJ_COORD_PLANE);
+  return dfmeta(seen, plane, 8.0);
 }
 
 dfstruct depthFunction(vec3 z){

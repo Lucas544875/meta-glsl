@@ -4,12 +4,16 @@ vec3 hsv(float h, float s, float v) {
   return ((clamp(abs(fract(mod(h,2.0*PI)+vec3(0,2,1)/3.)*6.-3.)-1.,0.,1.)-1.)*s+1.)*v;
 }
 
+vec3 gammainv(vec3 p){
+  return pow(p,vec3(1.0/2.2));
+}
+
 vec3 colorCode(int r, int g, int b){
   return vec3(float(r)/255.0,float(g)/255.0,float(b)/255.0);
 }
 
 vec3 rgb(int r, int g, int b){
-  return colorCode(r,g,b);
+  return gammainv(colorCode(r,g,b));
 }
 
 float manhattan (vec3 p,vec3 q){
@@ -26,10 +30,6 @@ vec3 Hadamard(vec3 v,vec3 w){ //アダマール積
     v.y * w.y,
     v.z * w.z
   );
-}
-
-vec3 gammainv(vec3 p){
-  return pow(p,vec3(1.0/2.2));
 }
 
 mat2 rot(float a) {
@@ -124,5 +124,8 @@ float snoise(vec2 p, vec2 q, vec2 r, vec2 seed){
           noise(vec2(p.x + r.x, p.y      )+seed) * (1.0 - q.x) *        q.y  +
           noise(vec2(p.x + r.x, p.y + r.y)+seed) * (1.0 - q.x) * (1.0 - q.y);
 }
+
+// 線形補完
+#define linearstep(edge0, edge1, x) min(max(((x) - (edge0)) / ((edge1) - (edge0)), 0.0), 1.0)
 
 `

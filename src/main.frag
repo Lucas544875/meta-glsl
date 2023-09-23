@@ -123,6 +123,14 @@ dfstruct tree(vec3 p) {
   return res;
 }
 
+dfstruct trickTree(vec3 z){
+  return tree(z-vec3(0.0,0.0,2.0));
+}
+
+dfstruct horse(vec3 z){
+  return dfstruct(sphere(z,vec3(0.0,0.0,0.0),1.0),OBJ_CUSTOM);
+}
+
 dfstruct distanceFunction(vec3 z) {
   vec3 p = z;
   float section = floor(length(z.xy)/6.0);
@@ -131,8 +139,14 @@ dfstruct distanceFunction(vec3 z) {
   p.y = repeat(p.y, 6.0);
 
   dfstruct tree = tree(p);
-  dfstruct plane = dfstruct(floor1(z),OBJ_COORD_PLANE);
+  dfstruct plane = dfstruct(floqor1(z),OBJ_COORD_PLANE);
   dfstruct seen = dfmeta(tree, plane, 8.0);
+
+  dfstruct horse = horse(z);
+  dfstruct trickTree = trickTree(z);
+  // dfmin(seen, horse);
+  // dfmin(seen, trickTree);
+  
   return seen;
 }
 
